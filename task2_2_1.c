@@ -12,7 +12,8 @@ double gorner_scheme(double x)
     return result;
 }
 
-int main() {
+int main()
+{
     double x;
 
     printf("x= ");
