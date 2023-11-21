@@ -1,14 +1,15 @@
-#include<stdio.h>
-#include<setjmp.h>
+#include <stdio.h>
+#include <setjmp.h>
 
 jmp_buf begin;
 char curlex;
 
 void getlex(void);
 int expr(void);
-int add(void);
 int mult(void);
 int pow(int n, int e);
+int power(void);
+int term();
 void error(void);
 
 int main()
@@ -38,67 +39,78 @@ void error(void)
 
 int expr()
 {
-    int e = add();
-    while (curlex == '+' || curlex == '-' || curlex == '^')
+    int e = mult();
+    while (curlex == '+' || curlex == '-')
     {
         char operation = curlex;
         getlex();
-        int term = add();
+        int term = mult();
 
         if (operation == '+')
         {
             e += term;
-        } else if (operation == '-')
+        }
+        else if (operation == '-')
         {
             e -= term;
-        } else if (operation == '^')
-        {
-            e = pow(e, term);
         }
     }
     return e;
 }
 
-int add() {
-    int a = mult();
+int mult()
+{
+    int m = power();
     while (curlex == '*' || curlex == '/')
     {
         char operation = curlex;
         getlex();
-        int factor = mult();
-
+        int factor = power();
         if (operation == '*')
         {
-            a *= factor;
+            m *= factor;
         } else if (operation == '/')
         {
             if (factor == 0)
             {
-                printf("\nДеление на ноль!\n");
                 error();
             }
-            a /= factor;
+            m /= factor;
         }
     }
-    return a;
+    return m;
 }
 
-int mult() {
-    int m;
+int term()
+{
+    int t;
     switch (curlex)
     {
         case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-            m = curlex - '0';
+            t = curlex - '0';
             break;
         case '(':
             getlex();
-            m = expr();
+            t = expr();
             if (curlex == ')') break;
         default:
             error();
     }
     getlex();
-    return m;
+    return t;
+}
+
+
+int power()
+{
+    int res = term();
+    while (curlex == '^') {
+        getlex();
+        int e = term();
+        res = pow(res, e);
+    }
+    return res;
+
 }
 
 int pow(int n, int e)
