@@ -8,7 +8,7 @@ void getlex(void);
 int expr(void);
 int add(void);
 int mult(void);
-int power(int n, int e);
+int pow(int n, int e);
 void error(void);
 
 int main()
@@ -53,7 +53,7 @@ int expr()
             e -= term;
         } else if (operation == '^')
         {
-            e = power(e, term);
+            e = pow(e, term);
         }
     }
     return e;
@@ -101,7 +101,7 @@ int mult() {
     return m;
 }
 
-int power(int n, int e)
+int pow(int n, int e)
 {
     int res = 1;
     while (e > 0)
