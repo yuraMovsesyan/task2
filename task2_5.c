@@ -88,6 +88,7 @@ void remove_at_list(struct List* list, int index)
             elem->next->back = elem->back;
         }
 
+        free(elem->val);
         free(elem);
 
         list->count--;
@@ -139,6 +140,19 @@ void print_list(struct List* list)
     printf("]");
 }
 
+void destroy_list(struct List* list)
+{
+    struct Elem* elem = list->first;
+
+    do
+    {
+        free(elem->val);
+        free(elem);
+    } while((elem = elem->next) != NULL);
+
+    free(list);
+}
+
 int main()
 {
     struct List* list = new_list();
@@ -169,8 +183,9 @@ int main()
         while(remove_list(list, val_last) != 0){}
         add_elem(list, val_last);
         print_list(list);
+        free(val_last);
     }
     printf("\n");
-    
+    destroy_list(list);
     return 0;
 }
