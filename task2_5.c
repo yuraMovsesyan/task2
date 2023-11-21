@@ -2,14 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Elem{
+struct Elem
+{
     char* val;
 
     struct Elem* back;
     struct Elem* next;
 };
 
-struct List {
+struct List
+{
     int count;
 
     struct Elem* last;
@@ -72,10 +74,12 @@ void remove_at_list(struct List* list, int index)
         if (elem->back == NULL)
         {
             list->first = elem->next;
+            if (elem->next != NULL) elem->next->back = NULL;
         }
         if (elem->next == NULL)
         {
             list->last = elem->back;
+            if (elem->back != NULL) elem->back->next = NULL;
         }
 
         if (elem->back != NULL && elem->next != NULL)

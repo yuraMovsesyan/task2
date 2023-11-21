@@ -4,7 +4,7 @@ double gorner_scheme(double x)
 {
     double coefficient, result = 0;
 
-    for (int i = 0; printf("a%d: ", i) && scanf("%lf", &coefficient) != EOF; ++i)
+    for (int i = 0; scanf("%lf", &coefficient) != EOF; ++i)
     {
         result = result * x + coefficient;
     }
@@ -16,10 +16,10 @@ int main()
 {
     double x;
 
-    printf("x= ");
+    
     scanf("%lf", &x);
 
-    printf("\nresult= %.10g\n", gorner_scheme(x));
+    printf("\n%.10g\n", gorner_scheme(x));
 
     return 0;
 }
