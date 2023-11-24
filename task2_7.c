@@ -17,7 +17,6 @@ int main()
     int result;
     setjmp(begin);
     printf("==>");
-
     getlex();
     result = expr();
     if (curlex != '\n') error();
@@ -33,7 +32,6 @@ void getlex()
 void error(void)
 {
     printf("\nОШИБКА!\n");
-    while (getchar() != '\n');
     longjmp(begin, 1);
 }
 
@@ -104,9 +102,10 @@ int term()
 int power()
 {
     int res = term();
-    while (curlex == '^') {
+    while (curlex == '^')
+    {
         getlex();
-        int e = term();
+        int e = power();
         res = pow(res, e);
     }
     return res;
