@@ -1,34 +1,55 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <graphviz/cgraph.h>
 
 struct Node
 {
     int val;
     struct Node* left;
     struct Node* right;
+
+    struct Node* parent;
+
+    Agnode_t *node;
 };
 
-struct Node* create(int value)
+Agraph_t *graph;
+
+struct Node* create(int value, struct Node* parent)
 {
     struct Node* res = (struct Node*)malloc(sizeof(struct Node));
     res->val = value;
     res->left = res->right = NULL;
+    char buff[20];
+    sprintf(buff, "%d", value);
+    res->node = agnode(graph, buff, 1);
+    
+    if (parent != NULL)
+    {
+        res->parent = parent;
+        agedge(graph, parent->node, res->node, NULL, 1);
+    }
+    else
+    {
+        res->parent = NULL;
+    }
+
     return res;
 }
 
-struct Node* insert(struct Node* node, int value)
+struct Node* insert(struct Node* node, int value, struct Node* parent)
 {
     if (node == NULL)
     {
-        return create(value);
+        return create(value, parent);
     }
 
     if (value < node->val)
     {
-        node->left = insert(node->left, value);
+        node->left = insert(node->left, value, node);
     } else if (value > node->val)
     {
-        node->right = insert(node->right, value);
+        node->right = insert(node->right, value, node);
     }
 
     return node;
@@ -88,11 +109,13 @@ struct Node* del(struct Node* node, int value)
         if (node->left == NULL)
         {
             struct Node* temp = node->right;
+            agdelnode(graph, node->node);
             free(node);
             return temp;
         } else if (node->right == NULL)
         {
             struct Node* temp = node->left;
+            agdelnode(graph, node->node);
             free(node);
             return temp;
         }
@@ -101,16 +124,53 @@ struct Node* del(struct Node* node, int value)
 
         node->val = temp->val;
 
+        agdelnode(graph, node->node);
         node->right = del(node->right, temp->val);
+
+        char buff[20];
+        sprintf(buff, "%d", node->val);
+
+        node->node = agnode(graph, buff, 1);
+
+        if (node->parent != NULL)
+        {
+            agedge(graph, node->parent->node, node->node, NULL, 1);
+        }
+
+        if (node->left != NULL)
+        {
+            agedge(graph, node->node, node->left->node, NULL, 1);
+        }
+
+        if (node->right != NULL)
+        {
+            agedge(graph, node->node, node->right->node, NULL, 1);
+        }
+
+        
     }
 
     return node;
 }
 
+void graph_to_png()
+{
+    FILE *file = fopen("graph.dot", "w");
+
+    agwrite(graph, file);
+
+    fclose(file);
+
+    system("dot -Tpng -O graph.dot");
+}
+
 int main()
 {
+    graph = agopen("MyGraph", Agdirected, NULL);
+
     struct Node* root = NULL;
 
+    graph_to_png();
     char opr;
     int key;
 
@@ -118,13 +178,17 @@ int main()
     {
         switch (opr)
         {
-            case '+':   root = insert(root, key); break;
+            case '+':   root = insert(root, key, root); break;
             case '-':   root = del(root, key); break;
             case '?':   if (find(root, key) != NULL) printf("%d yes\n", key); 
                         else printf("%d no\n", key); break;
+
         }
+
+        graph_to_png();
     }
 
+    agclose(graph);
 
     return 0;
 }
